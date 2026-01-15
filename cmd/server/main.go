@@ -26,7 +26,10 @@ func main() {
 	})
 
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "up"})
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "ok",
+			"timestamp": GenerateTimestamp(),
+		})
 	})
 
 	// ─── HTTP server with graceful shutdown ─────────────────────────────────────
@@ -63,4 +66,15 @@ func getEnv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func GenerateTimestamp() string {
+	// Load Jakarta timezone (GMT+7)
+	loc, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		// fallback to GMT+7 fixed zone if system doesn't have timezone data
+		loc = time.FixedZone("GMT+7", 7*60*60)
+	}
+
+	return time.Now().In(loc).Format("2006-01-02T15:04:05.000+07")
 }
